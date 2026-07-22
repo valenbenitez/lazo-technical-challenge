@@ -1,0 +1,50 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+  moduleFormat = "cjs"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum ObligationType {
+  annual_report
+  franchise_tax
+  boi_report
+  registered_agent_renewal
+}
+
+enum ObligationStatus {
+  pending
+  in_progress
+  submitted
+  done
+}
+
+model ObligationStatusHistory {
+  id           String            @id @default(uuid())
+  obligationId String
+  obligation   Obligation        @relation(fields: [obligationId], references: [id], onDelete: Cascade)
+  fromStatus   ObligationStatus?
+  toStatus     ObligationStatus
+  createdAt    DateTime          @default(now())
+}
+
+model Obligation {
+  id               String           @id @default(uuid())
+  type             ObligationType
+  title            String
+  description      String?
+  status           ObligationStatus @default(pending)
+  dueDate          DateTime
+  owner            String
+  requiresDocument Boolean          @default(false)
+  documentUrl      String?
+  documentName     String?
+  companyTaxId     String
+  version          Int              @default(1)
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime         @updatedAt
+  statusHistory    ObligationStatusHistory[]
+}

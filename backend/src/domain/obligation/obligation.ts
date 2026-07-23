@@ -26,6 +26,8 @@ export interface Obligation {
     requiresDocument: boolean;
     documentUrl?: string;
     companyTaxId: string;
+    enabled: boolean;
+    deletedAt: Date | null;
 }
 
 export type CreateObligationData = {
@@ -39,21 +41,30 @@ export type CreateObligationData = {
     companyTaxId: string;
 };
 
+export function assertValidDueDate(dueDate: Date, now = new Date()) {
+    const obligationDate = startOfDay(dueDate);
+    const today = startOfDay(now);
+
+    return obligationDate >= today;
+}
+
+export function isOverdue({ dueDate, status, now = new Date() }: { dueDate: Date, status: Status, now?: Date }) {
+
+    if (status === Status.DONE || status === Status.SUBMITTED) return false;
+
+    const obligationDate = startOfDay(dueDate);
+    const today = startOfDay(now);
+
+    return obligationDate < today;
+}
+
 export function createObligation(data: CreateObligationData) {
     return {
         ...data,
         description: data.description ?? '',
         status: Status.PENDING,
+        enabled: true,
+        deletedAt: null,
     };
 }
 
-export function assertValidDueDate(dueDate: Date, now = new Date()) {
-    const due = startOfDay(dueDate);
-    const today = startOfDay(now);
-
-    if (due < today) {
-        return false;
-    }
-
-    return true;
-}

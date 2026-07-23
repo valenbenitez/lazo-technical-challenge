@@ -1,7 +1,7 @@
-import { BadRequestException, Injectable } from "@nestjs/common";
+import { BadRequestException, Injectable, NotFoundException } from "@nestjs/common";
 import { CreateObligationDto, UpdateObligationDto } from "./dto";
 import { PrismaService } from "../infrastructure/prisma/prisma.service";
-import { assertValidDueDate, createObligation } from "src/domain/obligation/obligation";
+import { assertValidDueDate, createObligation, isOverdue, Status } from "src/domain/obligation/obligation";
 import { maskCompanyTaxId } from "src/shared/masking";
 
 @Injectable()
@@ -25,18 +25,81 @@ export class ObligationsService {
     }
 
     async findAll(companyTaxId: string) {
-        return { message: "Obligations found" }
+        if (!companyTaxId) {
+            throw new BadRequestException({
+                code: "INVALID_COMPANY_TAX_ID",
+                message: "Company tax id is required"
+            })
+        }
+
+        const obligations = await this.prismaService.obligation.findMany({ where: { companyTaxId, enabled: true }, orderBy: { dueDate: "asc" } });
+
+        return {
+            status: "success", data: obligations.map(obligation => ({
+                ...obligation,
+                companyTaxId: maskCompanyTaxId(obligation.companyTaxId),
+                overdue: isOverdue({ dueDate: obligation.dueDate, status: obligation.status as Status })
+            }))
+        };
     }
 
     async findOne(id: string) {
-        return { message: "Obligation found" }
+        if (!id) {
+            throw new BadRequestException({
+                code: "INVALID_OBLIGATION_ID",
+                message: "Obligation id is required"
+            })
+        }
+
+        const obligation = await this.prismaService.obligation.findUnique({ where: { id, enabled: true } });
+
+        if (!obligation) {
+            throw new NotFoundException({
+                code: "OBLIGATION_NOT_FOUND",
+                message: "Obligation not found"
+            })
+        }
+
+        return {
+            status: "success",
+            data:
+            {
+                ...obligation,
+                companyTaxId: maskCompanyTaxId(obligation.companyTaxId),
+                overdue: isOverdue({ dueDate: obligation.dueDate, status: obligation.status as Status })
+            }
+        };
     }
 
     async update(id: string, updateObligationDto: UpdateObligationDto) {
-        return { message: "Obligation updated" }
+        if (!id) {
+            throw new BadRequestException({
+                code: "INVALID_OBLIGATION_ID",
+                message: "Obligation id is required"
+            })
+        }
+
+        const obligation = await this.prismaService.obligation.update({ where: { id }, data: updateObligationDto });
+
+        return { status: "success", data: { ...obligation, taxCompanyId: maskCompanyTaxId(obligation.companyTaxId) } }
     }
 
-    async remove(id: string) {
-        return { message: "Obligation deleted" }
+    async disable(id: string) {
+        if (!id) {
+            throw new BadRequestException({
+                code: "INVALID_OBLIGATION_ID",
+                message: "Obligation id is required"
+            });
+        }
+
+        const deleted = await this.prismaService.obligation.update({ where: { id }, data: { enabled: false, deletedAt: new Date() } })
+        if (!deleted) {
+            throw new NotFoundException({
+                code: "OBLIGATION_NOT_FOUND",
+                message: "Obligation not found"
+            });
+        }
+
+        return { status: "success", data: { ...deleted, companyTaxId: maskCompanyTaxId(deleted.companyTaxId) } }
     }
 }

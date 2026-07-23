@@ -47,4 +47,6 @@ model Obligation {
   createdAt        DateTime         @default(now())
   updatedAt        DateTime         @updatedAt
   statusHistory    ObligationStatusHistory[]
+  enabled          Boolean          @default(true)
+  deletedAt        DateTime?
 }

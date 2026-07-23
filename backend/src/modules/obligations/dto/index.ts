@@ -37,8 +37,44 @@ export class CreateObligationDto {
     companyTaxId!: string;
 }
 
-export class UpdateObligationDto { }
+export class UpdateObligationDto {
+    @IsEnum(Type)
+    @IsOptional()
+    type?: Type;
 
-export class ChangeObligationStatusDto { }
+    @IsString()
+    @IsOptional()
+    title?: string;
+
+    @IsString()
+    @IsOptional()
+    description?: string;
+
+    @IsDateString()
+    @IsOptional()
+    dueDate?: string;
+
+    @IsString()
+    @IsOptional()
+    owner?: string;
+
+    @IsBoolean()
+    @IsOptional()
+    requiresDocument?: boolean;
+
+    @IsString()
+    @IsOptional()
+    documentUrl?: string;
+
+    @IsString()
+    @IsOptional()
+    companyTaxId?: string;
+}
+
+export class ChangeObligationStatusDto { 
+    @IsEnum(Status)
+    @IsNotEmpty()
+    status!: Status;
+}
 
 export class ObligationResponseDto { }

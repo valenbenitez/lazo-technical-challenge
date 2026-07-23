@@ -1,5 +1,5 @@
-import { Body, Controller, Get, Post } from "@nestjs/common";
-import { CreateObligationDto } from "./dto";
+import { Body, Controller, Delete, Get, Param, Patch, Post, Query } from "@nestjs/common";
+import { CreateObligationDto, UpdateObligationDto } from "./dto";
 import { ObligationsService } from "./obligations.service";
 
 @Controller("obligations")
@@ -12,7 +12,22 @@ export class ObligationsController {
     }
 
     @Get()
-    findAll() {
-        return this.obligationService.findAll();
+    findAll(@Query("companyTaxId") companyTaxId: string = "") {
+        return this.obligationService.findAll(companyTaxId);
+    }
+
+    @Get(":id")
+    findOne(@Param("id") id: string) {
+        return this.obligationService.findOne(id);
+    }
+
+    @Patch(":id")
+    update(@Param("id") id: string, @Body() updateObligationDto: UpdateObligationDto) {
+        return this.obligationService.update(id, updateObligationDto);
+    }
+
+    @Patch(":id/disable")
+    disable(@Param("id") id: string) {
+        return this.obligationService.disable(id);
     }
 }

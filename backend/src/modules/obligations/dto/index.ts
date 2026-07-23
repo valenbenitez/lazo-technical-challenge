@@ -1,49 +1,40 @@
-import { IsBoolean, IsDateString, IsEnum, IsString } from 'class-validator';
-
-enum Type {
-    ANNUAL_REPORT = "annual_report",
-    FRANCHISE_TAX = "franchise_tax",
-    BOI_REPORT = "boi_report",
-    REGISTER_AGENT_RENEWAL = "register_agent_renewal",
-}
-
-enum Status {
-    PENDING = "pending",
-    IN_PROGRESS = "in_progress",
-    SUBMITTED = "submitted",
-    DONE = "done"
-}
+import { IsBoolean, IsDateString, IsEnum, IsNotEmpty, IsOptional, IsString } from 'class-validator';
+import { Status, Type } from 'src/domain/obligation/obligation';
 
 export class CreateObligationDto {
-    @IsString()
-    id: string;
-
     @IsEnum(Type)
-    type: Type;
+    @IsNotEmpty()
+    type!: Type;
 
     @IsString()
-    title: string;
+    @IsNotEmpty()
+    title!: string;
 
     @IsString()
-    description: string;
+    description!: string;
 
     @IsEnum(Status)
-    status: Status;
+    @IsOptional()
+    status?: Status;
 
     @IsDateString()
-    dueDate: string;
+    @IsNotEmpty()
+    dueDate!: string;
 
     @IsString()
-    owner: string;
+    @IsNotEmpty()
+    owner!: string;
 
     @IsBoolean()
-    requiresDocument: boolean;
+    requiresDocument!: boolean;
 
     @IsString()
+    @IsOptional()
     documentUrl?: string;
 
     @IsString()
-    companyTaxId: string;
+    @IsNotEmpty()
+    companyTaxId!: string;
 }
 
 export class UpdateObligationDto { }

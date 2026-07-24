@@ -68,7 +68,7 @@ export class ObligationsService {
                 ...obligation,
                 companyTaxId: maskCompanyTaxId(obligation.companyTaxId),
                 overdue: isOverdue({ dueDate: obligation.dueDate, status: obligation.status as Status }),
-                validTransitions: getValidTransitions(obligation.status as Status),
+                validTransitions: getValidTransitions(obligation.status as Status, obligation as Obligation),
                 history: history.success ? history.data : []
             }
         };

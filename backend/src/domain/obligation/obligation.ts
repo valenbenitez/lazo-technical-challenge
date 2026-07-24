@@ -56,8 +56,17 @@ export function canTransition(from: Status, to: Status): boolean {
     return TRANSITIONS[from].includes(to);
 }
 
-export function getValidTransitions(from: Status): Status[] {
-    return [...TRANSITIONS[from]];
+export function getValidTransitions(from: Status, obligation: Obligation): Status[] {
+    const transitions = [...TRANSITIONS[from]];
+
+    if (
+        from === Status.IN_PROGRESS &&
+        !assertCanSubmit(obligation.requiresDocument, obligation.documentUrl)
+    ) {
+        return transitions.filter((status) => status !== Status.SUBMITTED);
+    }
+
+    return transitions;
 }
 
 export function assertCanSubmit(requiresDocument: boolean, documentUrl?: string | null): boolean {

@@ -1,4 +1,3 @@
-import { BadRequestException } from "@nestjs/common";
 import { startOfDay } from "src/shared/dates";
 
 export enum Type {
@@ -41,14 +40,39 @@ export type CreateObligationData = {
     companyTaxId: string;
 };
 
-export function assertValidDueDate(dueDate: Date, now = new Date()) {
+interface UpdateObligationStatusResponse {
+    success: boolean;
+    error?: string;
+}
+
+export const TRANSITIONS: Record<Status, Status[]> = {
+    [Status.PENDING]: [Status.IN_PROGRESS],
+    [Status.IN_PROGRESS]: [Status.SUBMITTED, Status.PENDING],
+    [Status.SUBMITTED]: [Status.DONE, Status.IN_PROGRESS],
+    [Status.DONE]: [Status.IN_PROGRESS],
+}
+
+export function canTransition(from: Status, to: Status): boolean {
+    return TRANSITIONS[from].includes(to);
+}
+
+export function getValidTransitions(from: Status): Status[] {
+    return [...TRANSITIONS[from]];
+}
+
+export function assertCanSubmit(requiresDocument: boolean, documentUrl?: string | null): boolean {
+    if (!requiresDocument) return true;
+    return Boolean(documentUrl);
+}
+
+export function assertValidDueDate(dueDate: Date, now = new Date()): boolean {
     const obligationDate = startOfDay(dueDate);
     const today = startOfDay(now);
 
     return obligationDate >= today;
 }
 
-export function isOverdue({ dueDate, status, now = new Date() }: { dueDate: Date, status: Status, now?: Date }) {
+export function isOverdue({ dueDate, status, now = new Date() }: { dueDate: Date, status: Status, now?: Date }): boolean {
 
     if (status === Status.DONE || status === Status.SUBMITTED) return false;
 
@@ -58,7 +82,7 @@ export function isOverdue({ dueDate, status, now = new Date() }: { dueDate: Date
     return obligationDate < today;
 }
 
-export function createObligation(data: CreateObligationData) {
+export function createObligation(data: CreateObligationData): Omit<Obligation, "id"> {
     return {
         ...data,
         description: data.description ?? '',
@@ -66,5 +90,15 @@ export function createObligation(data: CreateObligationData) {
         enabled: true,
         deletedAt: null,
     };
+}
+
+export function updateObligationStatus(obligation: Obligation, newStatus: Status): UpdateObligationStatusResponse {
+    if (!canTransition(obligation.status, newStatus)) return { success: false, error: "Invalid status transition" };
+
+    if (newStatus === Status.SUBMITTED && !assertCanSubmit(obligation.requiresDocument, obligation.documentUrl)) {
+        return { success: false, error: "Document is required for submission" };
+    }
+
+    return { success: true };
 }
 

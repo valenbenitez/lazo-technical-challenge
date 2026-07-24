@@ -1,7 +1,7 @@
-import { BadRequestException, Injectable, NotFoundException } from "@nestjs/common";
-import { CreateObligationDto, UpdateObligationDto } from "./dto";
+import { BadRequestException, ConflictException, Injectable, InternalServerErrorException, NotFoundException } from "@nestjs/common";
+import { ChangeObligationStatusDto, CreateObligationDto, UpdateObligationDto } from "./dto";
 import { PrismaService } from "../infrastructure/prisma/prisma.service";
-import { assertValidDueDate, createObligation, isOverdue, Status } from "src/domain/obligation/obligation";
+import { assertValidDueDate, createObligation, getValidTransitions, isOverdue, Obligation, Status, updateObligationStatus } from "src/domain/obligation/obligation";
 import { maskCompanyTaxId } from "src/shared/masking";
 
 @Injectable()
@@ -52,6 +52,7 @@ export class ObligationsService {
         }
 
         const obligation = await this.prismaService.obligation.findUnique({ where: { id, enabled: true } });
+        const history = await this.getHistory(id);
 
         if (!obligation) {
             throw new NotFoundException({
@@ -66,7 +67,9 @@ export class ObligationsService {
             {
                 ...obligation,
                 companyTaxId: maskCompanyTaxId(obligation.companyTaxId),
-                overdue: isOverdue({ dueDate: obligation.dueDate, status: obligation.status as Status })
+                overdue: isOverdue({ dueDate: obligation.dueDate, status: obligation.status as Status }),
+                validTransitions: getValidTransitions(obligation.status as Status),
+                history: history.success ? history.data : []
             }
         };
     }
@@ -101,5 +104,63 @@ export class ObligationsService {
         }
 
         return { status: "success", data: { ...deleted, companyTaxId: maskCompanyTaxId(deleted.companyTaxId) } }
+    }
+
+    async updateStatus(id: string, updateStatusDto: ChangeObligationStatusDto) {
+        const obligation = await this.prismaService.obligation.findUnique({ where: { id, enabled: true } });
+
+        if (!obligation) {
+            throw new NotFoundException({
+                code: "OBLIGATION_NOT_FOUND",
+                message: "Obligation not found"
+            });
+        }
+        const result = updateObligationStatus(obligation as Obligation, updateStatusDto.status);
+
+        if (result.success === false) {
+            throw new BadRequestException({
+                code: "INVALID_STATUS_TRANSITION",
+                message: result.error
+            })
+        }
+
+        try {
+            const [obligationUpdated] = await this.prismaService.$transaction([
+                this.prismaService.obligation.update({
+                    where: { id, version: obligation.version },
+                    data: { status: updateStatusDto.status, version: { increment: 1 } }
+                }),
+                this.prismaService.obligationStatusHistory.create({
+                    data: {
+                        obligationId: id,
+                        fromStatus: obligation.status,
+                        toStatus: updateStatusDto.status
+                    }
+                })
+            ])
+
+            return { success: true, data: { ...obligationUpdated, companyTaxId: maskCompanyTaxId(obligationUpdated.companyTaxId) } }
+        } catch (error: any) {
+            if (error?.code === "P2025") { 
+                throw new ConflictException({
+                    code: "CONFLICT_OBLIGATION_VERSION",
+                    message: "Obligation version is outdated"
+                })
+            }
+
+            throw new InternalServerErrorException({
+                code: "INTERNAL_SERVER_ERROR",
+                message: `Failed to update obligation status. Error ${error?.message || "Unknown error"}`
+            })
+        }
+    }
+
+    async getHistory(id: string) {
+        if (!id) return { success: false, error: 'Obligation id is required' }
+
+        const history = await this.prismaService.obligationStatusHistory.findMany({ where: { obligationId: id }, orderBy: { createdAt: "desc" }, take: 5 });
+        if (!history) return { success: false, error: 'History not found' }
+
+        return { success: true, data: history }
     }
 }

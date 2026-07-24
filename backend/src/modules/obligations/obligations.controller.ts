@@ -1,5 +1,5 @@
 import { Body, Controller, Delete, Get, Param, Patch, Post, Query } from "@nestjs/common";
-import { CreateObligationDto, UpdateObligationDto } from "./dto";
+import { ChangeObligationStatusDto, CreateObligationDto, UpdateObligationDto } from "./dto";
 import { ObligationsService } from "./obligations.service";
 
 @Controller("obligations")
@@ -21,6 +21,11 @@ export class ObligationsController {
         return this.obligationService.findOne(id);
     }
 
+    @Get(":id/history")
+    getHistory(@Param("id") id: string) {
+        return this.obligationService.getHistory(id);
+    }
+
     @Patch(":id")
     update(@Param("id") id: string, @Body() updateObligationDto: UpdateObligationDto) {
         return this.obligationService.update(id, updateObligationDto);
@@ -29,5 +34,10 @@ export class ObligationsController {
     @Patch(":id/disable")
     disable(@Param("id") id: string) {
         return this.obligationService.disable(id);
+    }
+
+    @Patch(":id/update-status")
+    updateStatus(@Param("id") id: string, @Body() updateStatusDto: ChangeObligationStatusDto) {
+        return this.obligationService.updateStatus(id, updateStatusDto);
     }
 }

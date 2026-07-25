@@ -3,6 +3,7 @@ import { ChangeObligationStatusDto, CreateObligationDto, UpdateObligationDto } f
 import { PrismaService } from "../infrastructure/prisma/prisma.service";
 import { assertValidDueDate, createObligation, getValidTransitions, isOverdue, Obligation, Status, updateObligationStatus } from "src/domain/obligation/obligation";
 import { maskCompanyTaxId } from "src/shared/masking";
+import { Prisma } from "generated/prisma/client";
 
 @Injectable()
 export class ObligationsService {
@@ -52,14 +53,14 @@ export class ObligationsService {
         }
 
         const obligation = await this.prismaService.obligation.findUnique({ where: { id, enabled: true } });
-        const history = await this.getHistory(id);
-
         if (!obligation) {
             throw new NotFoundException({
                 code: "OBLIGATION_NOT_FOUND",
                 message: "Obligation not found"
             })
         }
+
+        const history = await this.getHistory(id);
 
         return {
             status: "success",
@@ -69,7 +70,7 @@ export class ObligationsService {
                 companyTaxId: maskCompanyTaxId(obligation.companyTaxId),
                 overdue: isOverdue({ dueDate: obligation.dueDate, status: obligation.status as Status }),
                 validTransitions: getValidTransitions(obligation.status as Status, obligation as Obligation),
-                history: history.success ? history.data : []
+                history: history.status === "success" ? history.data : []
             }
         };
     }
@@ -82,9 +83,35 @@ export class ObligationsService {
             })
         }
 
-        const obligation = await this.prismaService.obligation.update({ where: { id }, data: updateObligationDto });
+        const obligation = await this.prismaService.obligation.findUnique({ where: { id, enabled: true } });
+        if (!obligation) {
+            throw new NotFoundException({
+                code: "OBLIGATION_NOT_FOUND",
+                message: "Obligation not found"
+            })
+        }
 
-        return { status: "success", data: { ...obligation, taxCompanyId: maskCompanyTaxId(obligation.companyTaxId) } }
+        try {
+            const obligationUpdated = await this.prismaService.obligation.update({ where: { id, version: obligation.version }, data: { ...updateObligationDto, version: { increment: 1 } } });
+
+            return { status: "success", data: { ...obligationUpdated, companyTaxId: maskCompanyTaxId(obligationUpdated.companyTaxId) } }
+        } catch (error: unknown) {
+            if (
+                error instanceof Prisma.PrismaClientKnownRequestError &&
+                error.code === "P2025"
+            ) {
+                throw new ConflictException({
+                    code: "CONFLICT_OBLIGATION_VERSION",
+                    message: "Obligation version is outdated",
+                });
+            }
+
+            const message = error instanceof Error ? error.message : "Unknown error";
+            throw new InternalServerErrorException({
+                code: "INTERNAL_SERVER_ERROR",
+                message: `Failed to update obligation. Error ${message}`,
+            });
+        }
     }
 
     async disable(id: string) {
@@ -95,15 +122,35 @@ export class ObligationsService {
             });
         }
 
-        const deleted = await this.prismaService.obligation.update({ where: { id }, data: { enabled: false, deletedAt: new Date() } })
-        if (!deleted) {
+        const obligation = await this.prismaService.obligation.findUnique({ where: { id, enabled: true } });
+        if (!obligation) {
             throw new NotFoundException({
                 code: "OBLIGATION_NOT_FOUND",
                 message: "Obligation not found"
-            });
+            })
         }
 
-        return { status: "success", data: { ...deleted, companyTaxId: maskCompanyTaxId(deleted.companyTaxId) } }
+        try {
+            const deleted = await this.prismaService.obligation.update({ where: { id, version: obligation.version }, data: { enabled: false, deletedAt: new Date(), version: { increment: 1 } } })
+
+            return { status: "success", data: { ...deleted, companyTaxId: maskCompanyTaxId(deleted.companyTaxId) } }
+        } catch (error: unknown) {
+            if (
+                error instanceof Prisma.PrismaClientKnownRequestError &&
+                error.code === "P2025"
+            ) {
+                throw new ConflictException({
+                    code: "CONFLICT_OBLIGATION_VERSION",
+                    message: "Obligation version is outdated",
+                });
+            }
+
+            const message = error instanceof Error ? error.message : "Unknown error";
+            throw new InternalServerErrorException({
+                code: "INTERNAL_SERVER_ERROR",
+                message: `Failed to update obligation. Error ${message}`,
+            });
+        }
     }
 
     async updateStatus(id: string, updateStatusDto: ChangeObligationStatusDto) {
@@ -139,28 +186,42 @@ export class ObligationsService {
                 })
             ])
 
-            return { success: true, data: { ...obligationUpdated, companyTaxId: maskCompanyTaxId(obligationUpdated.companyTaxId) } }
-        } catch (error: any) {
-            if (error?.code === "P2025") { 
+            return { status: "success", data: { ...obligationUpdated, companyTaxId: maskCompanyTaxId(obligationUpdated.companyTaxId) } }
+        } catch (error: unknown) {
+            if (
+                error instanceof Prisma.PrismaClientKnownRequestError &&
+                error.code === "P2025"
+            ) {
                 throw new ConflictException({
                     code: "CONFLICT_OBLIGATION_VERSION",
-                    message: "Obligation version is outdated"
-                })
+                    message: "Obligation version is outdated",
+                });
             }
 
+            const message = error instanceof Error ? error.message : "Unknown error";
             throw new InternalServerErrorException({
                 code: "INTERNAL_SERVER_ERROR",
-                message: `Failed to update obligation status. Error ${error?.message || "Unknown error"}`
-            })
+                message: `Failed to update obligation. Error ${message}`,
+            });
         }
     }
 
     async getHistory(id: string) {
-        if (!id) return { success: false, error: 'Obligation id is required' }
+        if (!id) {
+            throw new BadRequestException({
+                code: "INVALID_OBLIGATION_ID",
+                message: "Obligation id is required"
+            })
+        }
 
         const history = await this.prismaService.obligationStatusHistory.findMany({ where: { obligationId: id }, orderBy: { createdAt: "desc" }, take: 5 });
-        if (!history) return { success: false, error: 'History not found' }
+        if (!history) {
+            throw new NotFoundException({
+                code: "HISTORY_NOT_FOUND",
+                message: "History not found"
+            })
+        }
 
-        return { success: true, data: history }
+        return { status: "success", data: history }
     }
 }

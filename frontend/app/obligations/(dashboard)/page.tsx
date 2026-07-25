@@ -1,7 +1,11 @@
 import { listObligations } from "@/src/entities/obligation/api/obligations-api";
+import { cacheLife } from "next/cache";
 import Link from "next/link";
 
 export default async function ObligationsPage() {
+  "use cache";
+  cacheLife("minutes");
+
   const obligations = await listObligations("0002");
 
   return (

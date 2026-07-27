@@ -117,7 +117,7 @@ export async function updateObligationApi(id: string, input: UpdateObligationInp
     return json.data;
 }
 
-export async function updateObligationStatus(id: string, input: UpdateObligationStatusInput): Promise<ObligationListItem> {
+export async function updateObligationStatusApi(id: string, input: UpdateObligationStatusInput): Promise<ObligationListItem> {
     const res = await fetch(
         `${API_URL}/obligations/${id}/update-status`,
         {
@@ -129,7 +129,10 @@ export async function updateObligationStatus(id: string, input: UpdateObligation
         },
     )
     if (!res.ok) {
-        throw new Error("Failed to update obligation status");
+        const body = await res.json().catch(() => null);
+        const message = body?.message || "Failed to update obligation status";
+        const code = body?.code || "UNKNOWN_CODE";
+        throw new Error(message, { cause: { code } });
     }
     const json = await res.json();
     return json.data;

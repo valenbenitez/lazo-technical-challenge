@@ -2,6 +2,7 @@ import { getObligation } from "@/src/entities/obligation/api/obligations-api";
 import ButtonLink from "@/src/shared/ui/button-link";
 import { notFound } from "next/navigation";
 import { Suspense, type ReactNode } from "react";
+import StatusTransitions from "./status-transitions";
 
 function formatDate(value: string) {
   const [year, month, day] = value.slice(0, 10).split("-").map(Number);
@@ -53,16 +54,24 @@ async function ObligationContent({
   return (
     <div className="flex flex-col gap-8">
       <header className="flex flex-col gap-2">
-        <div className="flex flex-wrap items-center gap-2">
-          <span className="rounded-md bg-neutral-100 px-2 py-0.5 text-xs text-neutral-700">
-            {label(obligation.status)}
-          </span>
-          <ButtonLink href={`/obligations/${id}/edit`}>Edit</ButtonLink>
-          {obligation.overdue ? (
-            <span className="rounded-md bg-red-50 px-2 py-0.5 text-xs text-red-700">
-              Overdue
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="rounded-md bg-neutral-100 px-2 py-0.5 text-xs text-neutral-700">
+              {label(obligation.status)}
             </span>
-          ) : null}
+            {obligation.overdue ? (
+              <span className="rounded-md bg-red-50 px-2 py-0.5 text-xs text-red-700">
+                Overdue
+              </span>
+            ) : null}
+          </div>
+          <ButtonLink
+            href={`/obligations/${id}/edit`}
+            variant="secondary"
+            className="px-2.5 py-1 text-xs"
+          >
+            Edit
+          </ButtonLink>
         </div>
 
         <h1 className="text-2xl font-semibold tracking-tight">
@@ -84,16 +93,13 @@ async function ObligationContent({
         </Field>
       </dl>
 
-      <section className="rounded-md border border-neutral-200 p-4">
-        <h2 className="mb-2 text-sm font-medium text-neutral-500">
-          Valid transitions
-        </h2>
-        <p className="text-sm">
-          {obligation.validTransitions.length
-            ? obligation.validTransitions.map(label).join(", ")
-            : "None"}
-        </p>
-      </section>
+      <StatusTransitions
+        obligationId={obligation.id}
+        currentStatus={obligation.status}
+        validTransitions={obligation.validTransitions}
+        requiresDocument={obligation.requiresDocument}
+        documentUrl={obligation.documentUrl}
+      />
 
       <section className="rounded-md border border-neutral-200 p-4">
         <h2 className="mb-3 text-sm font-medium text-neutral-500">History</h2>

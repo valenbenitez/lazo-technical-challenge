@@ -63,7 +63,7 @@ export async function listObligations(companyTaxId: string): Promise<ObligationL
     return json.data;
 }
 
-export async function createObligation(input: CreateObligationInput): Promise<ObligationListItem> {
+export async function createObligationApi(input: CreateObligationInput): Promise<ObligationListItem> {
     const res = await fetch(
         `${API_URL}/obligations`,
         {
@@ -75,8 +75,12 @@ export async function createObligation(input: CreateObligationInput): Promise<Ob
         },
     )
     if (!res.ok) {
-        throw new Error("Failed to create obligation");
+        const body = await res.json().catch(() => null);
+        const message = body?.message || "Failed to create obligation";
+        const code = body?.code || "UNKNOWN_CODE";
+        throw new Error(message, { cause: { code } });
     }
+
     const json = await res.json();
     return json.data;
 }

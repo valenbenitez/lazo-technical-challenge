@@ -2,6 +2,7 @@ import { listObligations, ObligationListItem } from "@/src/entities/obligation/a
 import { Status } from "@/src/entities/obligation/model/obligation";
 import ObligationCard from "@/src/entities/obligation/ui/ObligationCard";
 import ObligationsFilter from "@/src/features/filter-obligations/ui/ObligationsFilter";
+import ButtonLink from "@/src/shared/ui/button-link";
 import ObligationsKpis from "@/src/widgets/obligations-kpis/ui/ObligationsKpis";
 import { cacheLife } from "next/cache";
 import { Suspense } from "react";
@@ -73,6 +74,9 @@ async function ObligationsContent({ searchParams }: Props) {
 
   return (
     <>
+      <div className="flex justify-end">
+        <ButtonLink href="/obligations/create">Create obligation</ButtonLink>
+      </div>
       <ObligationsKpis obligations={obligations} />
       <ObligationsFilter filter={filter} />
       {obligationsFiltered.map((obligation: ObligationListItem) => (

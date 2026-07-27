@@ -1,5 +1,4 @@
 import { getObligation } from "@/src/entities/obligation/api/obligations-api";
-import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Suspense, type ReactNode } from "react";
 
@@ -35,11 +34,9 @@ export default function ObligationPage({
   params: Promise<{ id: string }>;
 }) {
   return (
-    <div className="mx-auto w-full max-w-5xl px-4 py-8 sm:px-6">
-      <Suspense fallback={<p className="text-sm text-neutral-500">Loading…</p>}>
-        <ObligationContent params={params} />
-      </Suspense>
-    </div>
+    <Suspense fallback={<p className="text-sm text-neutral-500">Loading…</p>}>
+      <ObligationContent params={params} />
+    </Suspense>
   );
 }
 
@@ -55,14 +52,7 @@ async function ObligationContent({
 
   return (
     <div className="flex flex-col gap-8">
-      <div className="flex flex-col gap-4">
-        <Link
-          href="/obligations"
-          className="w-fit text-sm text-neutral-600 hover:underline"
-        >
-          ← Back
-        </Link>
-
+      <header className="flex flex-col gap-2">
         <div className="flex flex-wrap items-center gap-2">
           <span className="rounded-md bg-neutral-100 px-2 py-0.5 text-xs text-neutral-700">
             {label(obligation.status)}
@@ -77,7 +67,7 @@ async function ObligationContent({
         <h1 className="text-2xl font-semibold tracking-tight">
           {obligation.title}
         </h1>
-      </div>
+      </header>
 
       <dl className="grid gap-3 sm:grid-cols-2">
         <Field label="Type">{label(obligation.type)}</Field>

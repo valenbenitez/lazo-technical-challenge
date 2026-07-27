@@ -1,11 +1,11 @@
 import { getObligation } from "@/src/entities/obligation/api/obligations-api";
+import ButtonLink from "@/src/shared/ui/button-link";
 import { notFound } from "next/navigation";
 import { Suspense, type ReactNode } from "react";
 
 function formatDate(value: string) {
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return value;
-  return date.toLocaleDateString("en-US", {
+  const [year, month, day] = value.slice(0, 10).split("-").map(Number);
+  return new Date(year, month - 1, day).toLocaleDateString("en-US", {
     year: "numeric",
     month: "short",
     day: "numeric",
@@ -57,6 +57,7 @@ async function ObligationContent({
           <span className="rounded-md bg-neutral-100 px-2 py-0.5 text-xs text-neutral-700">
             {label(obligation.status)}
           </span>
+          <ButtonLink href={`/obligations/${id}/edit`}>Edit</ButtonLink>
           {obligation.overdue ? (
             <span className="rounded-md bg-red-50 px-2 py-0.5 text-xs text-red-700">
               Overdue

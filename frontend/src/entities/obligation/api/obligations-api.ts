@@ -19,7 +19,6 @@ export type UpdateObligationInput = {
     owner?: string;
     requiresDocument?: boolean;
     documentUrl?: string;
-    companyTaxId?: string;
 }
 
 export type UpdateObligationStatusInput = {
@@ -97,7 +96,7 @@ export async function getObligation(id: string): Promise<ObligationListItem> {
     return json.data;
 }
 
-export async function updateObligation(id: string, input: UpdateObligationInput): Promise<ObligationListItem> {
+export async function updateObligationApi(id: string, input: UpdateObligationInput): Promise<ObligationListItem> {
     const res = await fetch(
         `${API_URL}/obligations/${id}`,
         {
@@ -109,7 +108,10 @@ export async function updateObligation(id: string, input: UpdateObligationInput)
         },
     )
     if (!res.ok) {
-        throw new Error("Failed to update obligation");
+        const body = await res.json().catch(() => null);
+        const message = body?.message || "Failed to update obligation";
+        const code = body?.code || "UNKNOWN_CODE";
+        throw new Error(message, { cause: { code } });
     }
     const json = await res.json();
     return json.data;

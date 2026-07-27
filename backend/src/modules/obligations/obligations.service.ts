@@ -91,8 +91,28 @@ export class ObligationsService {
             })
         }
 
+        const { dueDate: dueDateInput, ...rest } = updateObligationDto;
+        const data: Record<string, unknown> = {
+            ...rest,
+            version: { increment: 1 },
+        };
+
+        if (dueDateInput !== undefined) {
+            const dueDate = new Date(dueDateInput);
+            if (!assertValidDueDate(dueDate)) {
+                throw new BadRequestException({
+                    code: "INVALID_DUE_DATE",
+                    message: "Due date is in the past",
+                });
+            }
+            data.dueDate = dueDate;
+        }
+
         try {
-            const obligationUpdated = await this.prismaService.obligation.update({ where: { id, version: obligation.version }, data: { ...updateObligationDto, version: { increment: 1 } } });
+            const obligationUpdated = await this.prismaService.obligation.update({
+                where: { id, version: obligation.version },
+                data,
+            });
 
             return { status: "success", data: { ...obligationUpdated, companyTaxId: maskCompanyTaxId(obligationUpdated.companyTaxId) } }
         } catch (error: unknown) {

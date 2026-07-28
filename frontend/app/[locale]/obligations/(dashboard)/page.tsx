@@ -2,6 +2,7 @@ import { listObligations, ObligationListItem } from "@/src/entities/obligation/a
 import { Status } from "@/src/entities/obligation/model/obligation";
 import ObligationCard from "@/src/entities/obligation/ui/ObligationCard";
 import ObligationsFilter from "@/src/features/filter-obligations/ui/ObligationsFilter";
+import { getDemoCompanyTaxId } from "@/src/shared/config/demo-company-tax-id";
 import ButtonLink from "@/src/shared/ui/button-link";
 import ObligationsKpis from "@/src/widgets/obligations-kpis/ui/ObligationsKpis";
 import { cacheLife } from "next/cache";
@@ -21,7 +22,7 @@ async function getObligations() {
   "use cache"
   cacheLife("minutes")
 
-  return listObligations("0002");
+  return listObligations(getDemoCompanyTaxId());
 }
 
 function getObligationsOverdue(obligations: ObligationListItem[]) {

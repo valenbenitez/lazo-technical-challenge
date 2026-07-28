@@ -1,8 +1,17 @@
 import { expect, test } from "@playwright/test";
 
-const COMPANY_TAX_ID = "0002";
-/** Backend mask: digits → `*` then append last 3 chars → `****002` for `0002`. */
-const MASKED_TAX_ID = "****002";
+/**
+ * Aligns with frontend/.env.example DEMO_COMPANY_TAX_ID (demo until auth).
+ * Override via env when running against a non-example demo tenant.
+ */
+const COMPANY_TAX_ID = process.env.DEMO_COMPANY_TAX_ID ?? "0002";
+
+/** Backend mask: digits → `*` then append last 3 chars (e.g. `0002` → `****002`). */
+function maskCompanyTaxId(taxId: string): string {
+  return taxId.replace(/\d/g, "*") + taxId.slice(-3);
+}
+
+const MASKED_TAX_ID = maskCompanyTaxId(COMPANY_TAX_ID);
 
 function todayIsoDate(): string {
   const now = new Date();

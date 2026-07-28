@@ -49,10 +49,8 @@ Se calcula al leer (lista / detalle) y se manda en la respuesta. **No** se persi
 - En **todas** las respuestas HTTP se enmascara (`maskCompanyTaxId` en el service).
 - No se loguea: la política actual es no loguear el campo (no hay interceptor de redaction porque tampoco hay logger de aplicación escribiendo payloads).
 
-**Limitación actual:** el dashboard del front lista con un `companyTaxId` de demo hardcodeado (`"0002"`). El filtro por empresa en la API es correcto; falta auth / Companies para sacar el hardcode. Queda explícito en pendiente.
-
+**Demo hasta auth / Companies:** el dashboard lista con `DEMO_COMPANY_TAX_ID` (server-only, ver `frontend/.env.example`). Valor de ejemplo `0002` alineado al seed/demo.
 ---
-
 
 
 ## Concurrencia

@@ -124,8 +124,6 @@ Evita que un update genérico bypasee la máquina de estados / doc-gated / audit
 
 ## Pendiente
 
-- **i18n es/en** — requisito de consigna, pendiente
-- **Tests de comportamiento** — dominio + un endpoint back; un flujo front — pendiente
 - **Cache** — falta de estrategia de cache
 - **Paginado / búsqueda** — lista completa por empresa hoy
 - **Login / Companies** — reemplazaría el taxId hardcodeado

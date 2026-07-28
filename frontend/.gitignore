@@ -38,7 +38,7 @@ yarn-error.log*
 # env files — secrets stay local; .env.example is commit-able
 .env
 .env.local
-.env*.local
+
 
 # vercel
 .vercel

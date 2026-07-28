@@ -8,13 +8,23 @@ export default getRequestConfig(async ({ requestLocale, locale: overrideLocale }
   let locale = overrideLocale;
 
   if (!locale) {
-    const paramValue = await rootParams.locale();
+    // `next/root-params` is only valid in a route render. Server Actions
+    // (create/update/status) call getLocale() and must fall back to requestLocale.
+    let paramValue: string | undefined;
+    try {
+      paramValue = await rootParams.locale();
+    } catch {
+      paramValue = undefined;
+    }
+
     if (hasLocale(routing.locales, paramValue)) {
       locale = paramValue;
     } else {
       const requested = await requestLocale;
       if (hasLocale(routing.locales, requested)) {
         locale = requested;
+      } else if (paramValue === undefined) {
+        locale = routing.defaultLocale;
       } else {
         notFound();
       }

@@ -6,6 +6,15 @@ const nextConfig: NextConfig = {
   experimental: {
     rootParams: true,
   },
+  redirects: async () => {
+    return [
+      {
+        source: "/",
+        destination: "/obligations",
+        permanent: true,
+      },
+    ];
+  },
 };
 
 const withNextIntl = createNextIntlPlugin("./i18n/request.ts");

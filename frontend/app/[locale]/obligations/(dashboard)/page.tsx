@@ -1,6 +1,7 @@
 import { listObligations, ObligationListItem } from "@/src/entities/obligation/api/obligations-api";
 import { Status } from "@/src/entities/obligation/model/obligation";
 import ObligationCard from "@/src/entities/obligation/ui/ObligationCard";
+import ObligationListSkeleton from "@/src/entities/obligation/ui/obligation-list-skeleton";
 import ObligationsFilter from "@/src/features/filter-obligations/ui/ObligationsFilter";
 import { getDemoCompanyTaxId } from "@/src/shared/config/demo-company-tax-id";
 import ButtonLink from "@/src/shared/ui/button-link";
@@ -63,7 +64,7 @@ export default async function ObligationsPage({ searchParams }: Props) {
   const t = await getTranslations("Dashboard");
 
   return (
-    <Suspense fallback={<p className="text-sm text-neutral-500">{t("loading")}</p>}>
+    <Suspense fallback={<ObligationListSkeleton label={t("loading")} />}>
       <ObligationsContent searchParams={searchParams} />
     </Suspense>
   );

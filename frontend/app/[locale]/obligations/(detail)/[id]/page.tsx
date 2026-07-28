@@ -1,6 +1,7 @@
 import { getObligation } from "@/src/entities/obligation/api/obligations-api";
 import { toStatusLabelKey } from "@/src/entities/obligation/lib/statusLabelKey";
 import { toTypeLabelKey } from "@/src/entities/obligation/lib/typeLabelKey";
+import ObligationDetailSkeleton from "@/src/entities/obligation/ui/obligation-detail-skeleton";
 import ButtonLink from "@/src/shared/ui/button-link";
 import { getLocale, getTranslations } from "next-intl/server";
 import { notFound } from "next/navigation";
@@ -36,7 +37,7 @@ export default async function ObligationPage({
   const t = await getTranslations("common");
 
   return (
-    <Suspense fallback={<p className="text-sm text-neutral-500">{t("loading")}</p>}>
+    <Suspense fallback={<ObligationDetailSkeleton label={t("loading")} />}>
       <ObligationContent params={params} />
     </Suspense>
   );

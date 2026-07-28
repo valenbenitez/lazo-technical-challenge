@@ -1,80 +1,87 @@
-import { IsBoolean, IsDateString, IsEnum, IsNotEmpty, IsOptional, IsString } from 'class-validator';
+import {
+  IsBoolean,
+  IsDateString,
+  IsEnum,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+} from 'class-validator';
 import { Status, Type } from 'src/domain/obligation/obligation';
 
 export class CreateObligationDto {
-    @IsEnum(Type)
-    @IsNotEmpty()
-    type!: Type;
+  @IsEnum(Type)
+  @IsNotEmpty()
+  type!: Type;
 
-    @IsString()
-    @IsNotEmpty()
-    title!: string;
+  @IsString()
+  @IsNotEmpty()
+  title!: string;
 
-    @IsString()
-    description!: string;
+  @IsString()
+  description!: string;
 
-    @IsEnum(Status)
-    @IsOptional()
-    status?: Status;
+  @IsEnum(Status)
+  @IsOptional()
+  status?: Status;
 
-    @IsDateString()
-    @IsNotEmpty()
-    dueDate!: string;
+  @IsDateString()
+  @IsNotEmpty()
+  dueDate!: string;
 
-    @IsString()
-    @IsNotEmpty()
-    owner!: string;
+  @IsString()
+  @IsNotEmpty()
+  owner!: string;
 
-    @IsBoolean()
-    requiresDocument!: boolean;
+  @IsBoolean()
+  requiresDocument!: boolean;
 
-    @IsString()
-    @IsOptional()
-    documentUrl?: string;
+  @IsString()
+  @IsOptional()
+  documentUrl?: string;
 
-    @IsString()
-    @IsNotEmpty()
-    companyTaxId!: string;
+  @IsString()
+  @IsNotEmpty()
+  companyTaxId!: string;
 }
 
 export class UpdateObligationDto {
-    @IsEnum(Type)
-    @IsOptional()
-    type?: Type;
+  @IsEnum(Type)
+  @IsOptional()
+  type?: Type;
 
-    @IsString()
-    @IsOptional()
-    title?: string;
+  @IsString()
+  @IsOptional()
+  title?: string;
 
-    @IsString()
-    @IsOptional()
-    description?: string;
+  @IsString()
+  @IsOptional()
+  description?: string;
 
-    @IsDateString()
-    @IsOptional()
-    dueDate?: string;
+  @IsDateString()
+  @IsOptional()
+  dueDate?: string;
 
-    @IsString()
-    @IsOptional()
-    owner?: string;
+  @IsString()
+  @IsOptional()
+  owner?: string;
 
-    @IsBoolean()
-    @IsOptional()
-    requiresDocument?: boolean;
+  @IsBoolean()
+  @IsOptional()
+  requiresDocument?: boolean;
 
-    @IsString()
-    @IsOptional()
-    documentUrl?: string;
+  @IsString()
+  @IsOptional()
+  documentUrl?: string;
 
-    @IsString()
-    @IsOptional()
-    companyTaxId?: string;
+  @IsString()
+  @IsOptional()
+  companyTaxId?: string;
 }
 
-export class ChangeObligationStatusDto { 
-    @IsEnum(Status)
-    @IsNotEmpty()
-    status!: Status;
+export class ChangeObligationStatusDto {
+  @IsEnum(Status)
+  @IsNotEmpty()
+  status!: Status;
 }
 
-export class ObligationResponseDto { }
+export class ObligationResponseDto {}

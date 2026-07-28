@@ -1,9 +1,5 @@
 export function startOfDay(date: Date): Date {
-    return new Date(
-        Date.UTC(
-            date.getUTCFullYear(),
-            date.getUTCMonth(),
-            date.getUTCDate(),
-        ),
-    );
+  return new Date(
+    Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()),
+  );
 }

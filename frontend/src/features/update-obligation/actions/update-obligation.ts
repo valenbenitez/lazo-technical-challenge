@@ -40,5 +40,5 @@ export async function updateObligation(
     };
   }
 
-  redirect(`/obligations/${id}`);
+  redirect(`/obligations/${response.id}`);
 }

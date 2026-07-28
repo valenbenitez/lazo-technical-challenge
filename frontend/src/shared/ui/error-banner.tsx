@@ -11,23 +11,27 @@ export default function ErrorBanner({
   message,
   durationMs = 5000,
 }: ErrorBannerProps) {
-  const [visible, setVisible] = useState(Boolean(message));
+  const [dismissed, setDismissed] = useState(false);
+  const [prevMessage, setPrevMessage] = useState(message);
+
+  if (message !== prevMessage) {
+    setPrevMessage(message);
+    setDismissed(false);
+  }
 
   useEffect(() => {
     if (!message) {
-      setVisible(false);
       return;
     }
 
-    setVisible(true);
     const timeoutId = window.setTimeout(() => {
-      setVisible(false);
+      setDismissed(true);
     }, durationMs);
 
     return () => window.clearTimeout(timeoutId);
   }, [message, durationMs]);
 
-  if (!message || !visible) return null;
+  if (!message || dismissed) return null;
 
   return (
     <div

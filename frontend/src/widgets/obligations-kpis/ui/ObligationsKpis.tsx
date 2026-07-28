@@ -1,5 +1,7 @@
 import { ObligationListItem } from "@/src/entities/obligation/api/obligations-api";
+import { toStatusLabelKey } from "@/src/entities/obligation/lib/statusLabelKey";
 import { Status } from "@/src/entities/obligation/model/obligation";
+import { getTranslations } from "next-intl/server";
 
 const DUE_SOON_DAYS = 14;
 const inDueSoonDays = Date.now() + DUE_SOON_DAYS * 24 * 60 * 60 * 1000;
@@ -28,19 +30,21 @@ function getObligationsOverdue(obligations: ObligationListItem[]) {
     return obligations.filter((obligation) => obligation.overdue === true);
 }
 
-export default function ObligationsKpis({ obligations }: { obligations: ObligationListItem[] }) {
+export default async function ObligationsKpis({ obligations }: { obligations: ObligationListItem[] }) {
+    const t = await getTranslations("Kpis");
+    const tStatus = await getTranslations("Status");
     const obligationsOverdue = getObligationsOverdue(obligations);
     const obligationsByStatus = getObligationsByStatus(obligations);
     const dueSoon = getObligationsDueSoon(obligations);
 
     return (
-        <section aria-label="Summary">
+        <section aria-label={t("summaryAria")}>
             <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
                 <div
                     key="Total"
                     className="rounded-md border border-neutral-200 bg-neutral-50 px-3 py-3"
                 >
-                    <p className="text-xs font-medium text-neutral-500">Total</p>
+                    <p className="text-xs font-medium text-neutral-500">{t("total")}</p>
                     <p className="mt-1 text-2xl font-semibold tracking-tight text-neutral-900">
                         {obligations.length}
                     </p>
@@ -49,7 +53,7 @@ export default function ObligationsKpis({ obligations }: { obligations: Obligati
                     key="By status"
                     className="rounded-md border border-neutral-200 bg-neutral-50 px-3 py-3"
                 >
-                    <p className="text-xs font-medium text-neutral-500">By status</p>
+                    <p className="text-xs font-medium text-neutral-500">{t("byStatus")}</p>
                     <ul className="mt-2 space-y-1">
                         {Object.entries(obligationsByStatus).map(([status, count]) => (
                             <li
@@ -57,7 +61,7 @@ export default function ObligationsKpis({ obligations }: { obligations: Obligati
                                 className="flex items-baseline justify-between gap-2 text-sm text-neutral-800"
                             >
                                 <span className="text-neutral-600">
-                                    {status.replaceAll("_", " ")}
+                                    {tStatus(toStatusLabelKey(status))}
                                 </span>
                                 <span className="font-semibold tabular-nums text-neutral-900">
                                     {count}
@@ -70,7 +74,7 @@ export default function ObligationsKpis({ obligations }: { obligations: Obligati
                     key="Overdue"
                     className="rounded-md border border-neutral-200 bg-neutral-50 px-3 py-3"
                 >
-                    <p className="text-xs font-medium text-neutral-500">Overdue</p>
+                    <p className="text-xs font-medium text-neutral-500">{t("overdue")}</p>
                     <p
                         className={[
                             "mt-1 text-2xl font-semibold tracking-tight tabular-nums",
@@ -86,7 +90,7 @@ export default function ObligationsKpis({ obligations }: { obligations: Obligati
                     key="Due soon"
                     className="rounded-md border border-neutral-200 bg-neutral-50 px-3 py-3"
                 >
-                    <p className="text-xs font-medium text-neutral-500">Due soon</p>
+                    <p className="text-xs font-medium text-neutral-500">{t("dueSoon")}</p>
                     <p className="mt-1 text-2xl font-semibold tracking-tight tabular-nums text-neutral-900">
                         {dueSoon.length}
                     </p>

@@ -5,6 +5,7 @@ import ObligationsFilter from "@/src/features/filter-obligations/ui/ObligationsF
 import ButtonLink from "@/src/shared/ui/button-link";
 import ObligationsKpis from "@/src/widgets/obligations-kpis/ui/ObligationsKpis";
 import { cacheLife } from "next/cache";
+import { getTranslations } from "next-intl/server";
 import { Suspense } from "react";
 
 type Props = {
@@ -58,15 +59,17 @@ function getObligationsFiltered(obligations: ObligationListItem[], filter: Filte
 
 
 export default async function ObligationsPage({ searchParams }: Props) {
+  const t = await getTranslations("Dashboard");
 
   return (
-    <Suspense fallback={<p className="text-sm text-neutral-500">Loading…</p>}>
+    <Suspense fallback={<p className="text-sm text-neutral-500">{t("loading")}</p>}>
       <ObligationsContent searchParams={searchParams} />
     </Suspense>
   );
 }
 
 async function ObligationsContent({ searchParams }: Props) {
+  const t = await getTranslations("Dashboard");
   const { filter = "all" as Filter } = await searchParams;
   const obligations = await getObligations();
   const obligationsFiltered = getObligationsFiltered(obligations, filter as Filter);
@@ -75,7 +78,7 @@ async function ObligationsContent({ searchParams }: Props) {
   return (
     <>
       <div className="flex justify-end">
-        <ButtonLink href="/obligations/create">Create obligation</ButtonLink>
+        <ButtonLink href="/obligations/create">{t("createObligation")}</ButtonLink>
       </div>
       <ObligationsKpis obligations={obligations} />
       <ObligationsFilter filter={filter} />

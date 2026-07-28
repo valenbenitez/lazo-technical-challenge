@@ -1,7 +1,12 @@
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
+import { getTranslations } from "next-intl/server";
 import { ObligationListItem } from "../api/obligations-api";
+import { toStatusLabelKey } from "../lib/statusLabelKey";
 
-export default function ObligationCard(obligation: ObligationListItem) {
+export default async function ObligationCard(obligation: ObligationListItem) {
+    const t = await getTranslations("ObligationCard");
+    const tStatus = await getTranslations("Status");
+
     return (
         <Link href={`/obligations/${obligation.id}`}>
             <div
@@ -9,12 +14,12 @@ export default function ObligationCard(obligation: ObligationListItem) {
             >
                 <h2 className="font-medium">{obligation.title}</h2>
                 <p className="mt-1 text-sm text-neutral-500">
-                    {obligation.description ?? "No description"}
+                    {obligation.description ?? t("noDescription")}
                 </p>
                 <p className="mt-2 text-sm text-neutral-600">
-                    {obligation.status} · {obligation.dueDate}
+                    {tStatus(toStatusLabelKey(obligation.status))} · {obligation.dueDate}
                 </p>
-                {obligation.overdue && <p className="mt-2 text-sm text-neutral-600 text-red-500">Overdue</p>}
+                {obligation.overdue && <p className="mt-2 text-sm text-neutral-600 text-red-500">{t("overdue")}</p>}
             </div>
         </Link>
     )

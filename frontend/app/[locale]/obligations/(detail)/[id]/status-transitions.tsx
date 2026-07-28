@@ -1,14 +1,12 @@
 "use client";
 
+import { toStatusLabelKey } from "@/src/entities/obligation/lib/statusLabelKey";
 import { Status } from "@/src/entities/obligation/model/obligation";
 import { changeObligationStatus } from "@/src/features/change-obligation-status/actions/change-obligation-status";
 import Button from "@/src/shared/ui/button";
 import ErrorBanner from "@/src/shared/ui/error-banner";
+import { useTranslations } from "next-intl";
 import { useActionState } from "react";
-
-function label(value: string) {
-  return value.replaceAll("_", " ");
-}
 
 type StatusTransitionsProps = {
   obligationId: string;
@@ -25,6 +23,8 @@ export default function StatusTransitions({
   requiresDocument,
   documentUrl,
 }: StatusTransitionsProps) {
+  const t = useTranslations("Transitions");
+  const tStatus = useTranslations("Status");
   const [state, submitAction, isPending] = useActionState(
     changeObligationStatus,
     null,
@@ -42,13 +42,13 @@ export default function StatusTransitions({
   return (
     <section className="rounded-md border border-neutral-200 p-4">
       <h2 className="mb-2 text-sm font-medium text-neutral-500">
-        Valid transitions
+        {t("title")}
       </h2>
 
-      <ErrorBanner message={state?.error} />
+      <ErrorBanner errorKey={state?.errorKey} />
 
       {!hasActions ? (
-        <p className="text-sm text-neutral-500">No transitions available.</p>
+        <p className="text-sm text-neutral-500">{t("none")}</p>
       ) : (
         <div className="mt-3 flex flex-col gap-2">
           <form action={submitAction} className="flex flex-wrap gap-2">
@@ -62,7 +62,11 @@ export default function StatusTransitions({
                 variant="secondary"
                 disabled={isPending}
               >
-                {isPending ? "Updating…" : `Move to ${label(status)}`}
+                {isPending
+                  ? t("updating")
+                  : t("moveTo", {
+                      status: tStatus(toStatusLabelKey(status)),
+                    })}
               </Button>
             ))}
             {showBlockedSubmitted ? (
@@ -70,16 +74,16 @@ export default function StatusTransitions({
                 type="button"
                 variant="secondary"
                 disabled
-                title="A document is required before submitting"
+                title={t("blockedTitle")}
               >
-                Move to submitted
+                {t("moveTo", {
+                  status: tStatus(toStatusLabelKey(Status.SUBMITTED)),
+                })}
               </Button>
             ) : null}
           </form>
           {showBlockedSubmitted ? (
-            <p className="text-xs text-neutral-500">
-              Add a document URL before moving to submitted.
-            </p>
+            <p className="text-xs text-neutral-500">{t("blockedHelp")}</p>
           ) : null}
         </div>
       )}

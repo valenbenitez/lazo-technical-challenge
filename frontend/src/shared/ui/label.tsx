@@ -1,3 +1,6 @@
+"use client";
+
+import { useTranslations } from "next-intl";
 import type { LabelHTMLAttributes } from "react";
 
 type LabelProps = LabelHTMLAttributes<HTMLLabelElement> & {
@@ -12,6 +15,8 @@ export default function Label({
   children,
   ...props
 }: LabelProps) {
+  const t = useTranslations("common");
+
   return (
     <label
       className={["block text-xs font-medium text-neutral-600", className]
@@ -27,7 +32,7 @@ export default function Label({
           </span>
         ) : null}
         {optional ? (
-          <span className="font-normal text-neutral-400">(optional)</span>
+          <span className="font-normal text-neutral-400">{t("optional")}</span>
         ) : null}
       </span>
     </label>

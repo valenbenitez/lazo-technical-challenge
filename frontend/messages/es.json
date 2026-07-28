@@ -1,0 +1,118 @@
+{
+  "common": {
+    "appName": "Lazo",
+    "language": "Idioma",
+    "localeEs": "ES",
+    "localeEn": "EN",
+    "yes": "Sí",
+    "no": "No",
+    "back": "← Volver",
+    "loading": "Cargando…",
+    "cancel": "Cancelar",
+    "optional": "(opcional)",
+    "emDash": "—"
+  },
+  "I18nSmoke": {
+    "message": "i18n listo (es)"
+  },
+  "Dashboard": {
+    "title": "Obligaciones",
+    "subtitle": "Seguí presentaciones, renovaciones y vencimientos.",
+    "loading": "Cargando…",
+    "createObligation": "Crear obligación"
+  },
+  "Kpis": {
+    "summaryAria": "Resumen",
+    "total": "Total",
+    "byStatus": "Por estado",
+    "overdue": "Vencidas",
+    "dueSoon": "Próximas a vencer"
+  },
+  "Filter": {
+    "aria": "Filtros",
+    "all": "Todas",
+    "pending": "Pendiente",
+    "in-progress": "En progreso",
+    "overdue": "Vencidas",
+    "due-soon": "Próximas a vencer",
+    "submitted": "Presentada",
+    "done": "Completada"
+  },
+  "ObligationCard": {
+    "noDescription": "Sin descripción",
+    "overdue": "Vencida"
+  },
+  "Status": {
+    "pending": "Pendiente",
+    "in_progress": "En progreso",
+    "submitted": "Presentada",
+    "done": "Completada"
+  },
+  "Type": {
+    "annual_report": "Informe anual",
+    "franchise_tax": "Impuesto de franquicia",
+    "boi_report": "Informe BOI",
+    "registered_agent_renewal": "Renovación de agente registrado"
+  },
+  "Detail": {
+    "edit": "Editar",
+    "overdue": "Vencida",
+    "type": "Tipo",
+    "dueDate": "Fecha de vencimiento",
+    "owner": "Responsable",
+    "taxId": "Tax ID",
+    "requiresDocument": "Requiere documento",
+    "document": "Documento",
+    "description": "Descripción",
+    "history": "Historial",
+    "noHistory": "Sin historial"
+  },
+  "Form": {
+    "createTitle": "Crear obligación",
+    "createSubtitle": "Los campos marcados con * son obligatorios. La validación se ejecuta en el servidor.",
+    "editTitle": "Editar obligación",
+    "editSubtitle": "Actualizá los campos abajo. Los cambios de estado se hacen desde el detalle.",
+    "title": "Título",
+    "description": "Descripción",
+    "type": "Tipo",
+    "dueDate": "Fecha de vencimiento",
+    "owner": "Responsable",
+    "companyTaxId": "Tax ID de la empresa",
+    "requiresDocument": "Requiere documento",
+    "documentUrl": "URL del documento",
+    "titlePlaceholder": "Informe anual 2026",
+    "descriptionPlaceholder": "Descripción de la obligación",
+    "ownerPlaceholder": "David Doe",
+    "companyTaxIdPlaceholder": "1234567890",
+    "documentUrlPlaceholder": "https://ejemplo.com/documento.pdf",
+    "taxIdNotEditable": "Sensible — no editable aquí.",
+    "creating": "Creando…",
+    "create": "Crear",
+    "saving": "Guardando…",
+    "save": "Guardar"
+  },
+  "Transitions": {
+    "title": "Transiciones válidas",
+    "none": "No hay transiciones disponibles.",
+    "updating": "Actualizando…",
+    "moveTo": "Pasar a {status}",
+    "blockedTitle": "Se requiere un documento antes de presentar",
+    "blockedHelp": "Agregá la URL de un documento antes de pasar a presentada."
+  },
+  "Errors": {
+    "createFailed": "No se pudo crear la obligación",
+    "updateFailed": "No se pudo actualizar la obligación",
+    "statusUpdateFailed": "No se pudo actualizar el estado de la obligación",
+    "idRequired": "El ID de la obligación es obligatorio",
+    "invalidStatus": "Estado inválido",
+    "INVALID_DUE_DATE": "Fecha de vencimiento inválida",
+    "INVALID_COMPANY_TAX_ID": "Tax ID de la empresa inválido",
+    "INVALID_OBLIGATION_ID": "ID de obligación inválido",
+    "OBLIGATION_NOT_FOUND": "Obligación no encontrada",
+    "CONFLICT_OBLIGATION_VERSION": "Esta obligación se actualizó en otro lugar. Actualizá y probá de nuevo.",
+    "INVALID_STATUS_TRANSITION": "Ese cambio de estado no está permitido",
+    "INTERNAL_SERVER_ERROR": "Algo salió mal. Probá de nuevo.",
+    "HISTORY_NOT_FOUND": "Historial no encontrado",
+    "UNKNOWN_CODE": "Algo salió mal. Probá de nuevo."
+  }
+}

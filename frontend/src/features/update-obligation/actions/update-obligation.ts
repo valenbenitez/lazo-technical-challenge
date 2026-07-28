@@ -1,8 +1,17 @@
 "use server";
 
-import { ObligationListItem, updateObligationApi, UpdateObligationInput } from "@/src/entities/obligation/api/obligations-api";
+import { getLocale } from "next-intl/server";
+import { redirect } from "@/i18n/navigation";
+import {
+  ObligationListItem,
+  updateObligationApi,
+  UpdateObligationInput,
+} from "@/src/entities/obligation/api/obligations-api";
 import { Type } from "@/src/entities/obligation/model/obligation";
-import { redirect } from "next/navigation";
+import {
+  type ErrorMessageKey,
+  toActionErrorKey,
+} from "@/src/shared/lib/error-message-key";
 
 function str(formData: FormData, key: string) {
   const value = formData.get(key);
@@ -10,14 +19,13 @@ function str(formData: FormData, key: string) {
 }
 
 export async function updateObligation(
-  _prevState: { error?: string } | null,
+  _prevState: { errorKey?: ErrorMessageKey } | null | undefined,
   formData: FormData,
-) {
-
+): Promise<{ errorKey: ErrorMessageKey } | null> {
   const id = str(formData, "id");
   if (!id) {
     return {
-      error: "Obligation ID is required",
+      errorKey: "idRequired",
     };
   }
 
@@ -36,9 +44,10 @@ export async function updateObligation(
     response = await updateObligationApi(id, input);
   } catch (error: unknown) {
     return {
-      error: error instanceof Error ? error.message : "Failed to update obligation",
+      errorKey: toActionErrorKey(error, "updateFailed"),
     };
   }
 
-  redirect(`/obligations/${response.id}`);
+  const locale = await getLocale();
+  return redirect({ href: `/obligations/${response.id}`, locale });
 }

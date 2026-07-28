@@ -1,10 +1,16 @@
 "use server";
 
+import { getLocale } from "next-intl/server";
+import { redirect } from "@/i18n/navigation";
 import {
   updateObligationStatusApi,
 } from "@/src/entities/obligation/api/obligations-api";
 import { Status } from "@/src/entities/obligation/model/obligation";
-import { redirect } from "next/navigation";
+import {
+  type ErrorMessageKey,
+  toActionErrorKey,
+} from "@/src/shared/lib/error-message-key";
+
 
 function str(formData: FormData, key: string) {
   const value = formData.get(key);
@@ -12,30 +18,28 @@ function str(formData: FormData, key: string) {
 }
 
 export async function changeObligationStatus(
-  _prevState: { error?: string } | null,
+  _prevState: { errorKey?: ErrorMessageKey } | null,
   formData: FormData,
-) {
+): Promise<{ errorKey: ErrorMessageKey } | null> {
   const id = str(formData, "id");
   const status = str(formData, "status") as Status;
 
   if (!id) {
-    return { error: "Obligation ID is required" };
+    return { errorKey: "idRequired" };
   }
 
   if (!Object.values(Status).includes(status)) {
-    return { error: "Invalid status" };
+    return { errorKey: "invalidStatus" };
   }
 
   try {
     await updateObligationStatusApi(id, { status });
   } catch (error: unknown) {
     return {
-      error:
-        error instanceof Error
-          ? error.message
-          : "Failed to update obligation status",
+      errorKey: toActionErrorKey(error, "statusUpdateFailed"),
     };
   }
 
-  redirect(`/obligations/${id}`);
+  const locale = await getLocale();
+  return redirect({ href: `/obligations/${id}`, locale });
 }

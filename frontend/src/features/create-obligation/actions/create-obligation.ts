@@ -1,12 +1,17 @@
 "use server";
 
+import { getLocale } from "next-intl/server";
+import { redirect } from "@/i18n/navigation";
 import {
     createObligationApi,
     CreateObligationInput,
     ObligationListItem,
 } from "@/src/entities/obligation/api/obligations-api";
 import { Type } from "@/src/entities/obligation/model/obligation";
-import { redirect } from "next/navigation";
+import {
+    type ErrorMessageKey,
+    toActionErrorKey,
+} from "@/src/shared/lib/error-message-key";
 
 function str(formData: FormData, key: string) {
     const value = formData.get(key);
@@ -14,7 +19,10 @@ function str(formData: FormData, key: string) {
 }
 
 
-export async function createObligation(prevState: unknown, formData: FormData) {
+export async function createObligation(
+    prevState: unknown,
+    formData: FormData,
+): Promise<{ errorKey: ErrorMessageKey } | null> {
     const input: CreateObligationInput = {
         title: str(formData, "title"),
         type: str(formData, "type") as Type,
@@ -34,9 +42,9 @@ export async function createObligation(prevState: unknown, formData: FormData) {
         response = await createObligationApi(input);
     } catch (error: unknown) {
         return {
-            error:
-                error instanceof Error ? error.message : "Failed to create obligation",
+            errorKey: toActionErrorKey(error, "createFailed"),
         };
     }
-    redirect(`/obligations/${response.id}`);
+    const locale = await getLocale();
+    return redirect({ href: `/obligations/${response.id}`, locale });
 }

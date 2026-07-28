@@ -1,0 +1,118 @@
+{
+  "common": {
+    "appName": "Lazo",
+    "language": "Language",
+    "localeEs": "ES",
+    "localeEn": "EN",
+    "yes": "Yes",
+    "no": "No",
+    "back": "← Back",
+    "loading": "Loading…",
+    "cancel": "Cancel",
+    "optional": "(optional)",
+    "emDash": "—"
+  },
+  "I18nSmoke": {
+    "message": "i18n ready (en)"
+  },
+  "Dashboard": {
+    "title": "Obligations",
+    "subtitle": "Track filings, renewals, and deadlines.",
+    "loading": "Loading…",
+    "createObligation": "Create obligation"
+  },
+  "Kpis": {
+    "summaryAria": "Summary",
+    "total": "Total",
+    "byStatus": "By status",
+    "overdue": "Overdue",
+    "dueSoon": "Due soon"
+  },
+  "Filter": {
+    "aria": "Filters",
+    "all": "All",
+    "pending": "Pending",
+    "in-progress": "In progress",
+    "overdue": "Overdue",
+    "due-soon": "Due soon",
+    "submitted": "Submitted",
+    "done": "Done"
+  },
+  "ObligationCard": {
+    "noDescription": "No description",
+    "overdue": "Overdue"
+  },
+  "Status": {
+    "pending": "Pending",
+    "in_progress": "In progress",
+    "submitted": "Submitted",
+    "done": "Done"
+  },
+  "Type": {
+    "annual_report": "Annual report",
+    "franchise_tax": "Franchise tax",
+    "boi_report": "BOI report",
+    "registered_agent_renewal": "Registered agent renewal"
+  },
+  "Detail": {
+    "edit": "Edit",
+    "overdue": "Overdue",
+    "type": "Type",
+    "dueDate": "Due date",
+    "owner": "Owner",
+    "taxId": "Tax ID",
+    "requiresDocument": "Requires document",
+    "document": "Document",
+    "description": "Description",
+    "history": "History",
+    "noHistory": "No history"
+  },
+  "Form": {
+    "createTitle": "Create obligation",
+    "createSubtitle": "Fields marked with * are required. Validation will run on the server.",
+    "editTitle": "Edit obligation",
+    "editSubtitle": "Update the fields below. Status changes happen from the detail page.",
+    "title": "Title",
+    "description": "Description",
+    "type": "Type",
+    "dueDate": "Due date",
+    "owner": "Owner",
+    "companyTaxId": "Company tax ID",
+    "requiresDocument": "Requires document",
+    "documentUrl": "Document URL",
+    "titlePlaceholder": "Annual report 2026",
+    "descriptionPlaceholder": "Description of the obligation",
+    "ownerPlaceholder": "David Doe",
+    "companyTaxIdPlaceholder": "1234567890",
+    "documentUrlPlaceholder": "https://example.com/document.pdf",
+    "taxIdNotEditable": "Sensitive — not editable here.",
+    "creating": "Creating…",
+    "create": "Create",
+    "saving": "Saving…",
+    "save": "Save"
+  },
+  "Transitions": {
+    "title": "Valid transitions",
+    "none": "No transitions available.",
+    "updating": "Updating…",
+    "moveTo": "Move to {status}",
+    "blockedTitle": "A document is required before submitting",
+    "blockedHelp": "Add a document URL before moving to submitted."
+  },
+  "Errors": {
+    "createFailed": "Failed to create obligation",
+    "updateFailed": "Failed to update obligation",
+    "statusUpdateFailed": "Failed to update obligation status",
+    "idRequired": "Obligation ID is required",
+    "invalidStatus": "Invalid status",
+    "INVALID_DUE_DATE": "Invalid due date",
+    "INVALID_COMPANY_TAX_ID": "Invalid company tax ID",
+    "INVALID_OBLIGATION_ID": "Invalid obligation ID",
+    "OBLIGATION_NOT_FOUND": "Obligation not found",
+    "CONFLICT_OBLIGATION_VERSION": "This obligation was updated elsewhere. Refresh and try again.",
+    "INVALID_STATUS_TRANSITION": "That status change is not allowed",
+    "INTERNAL_SERVER_ERROR": "Something went wrong. Please try again.",
+    "HISTORY_NOT_FOUND": "History not found",
+    "UNKNOWN_CODE": "Something went wrong. Please try again."
+  }
+}

@@ -18,7 +18,8 @@ export class CreateObligationDto {
   title!: string;
 
   @IsString()
-  description!: string;
+  @IsOptional()
+  description?: string;
 
   @IsEnum(Status)
   @IsOptional()

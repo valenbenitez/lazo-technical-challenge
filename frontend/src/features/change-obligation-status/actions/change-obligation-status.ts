@@ -1,11 +1,14 @@
 "use server";
 
+import { updateTag } from "next/cache";
 import { getLocale } from "next-intl/server";
 import { redirect } from "@/i18n/navigation";
 import {
   updateObligationStatusApi,
 } from "@/src/entities/obligation/api/obligations-api";
+import { obligationsListCacheTag } from "@/src/entities/obligation/lib/obligations-list-cache-tag";
 import { Status } from "@/src/entities/obligation/model/obligation";
+import { getDemoCompanyTaxId } from "@/src/shared/config/demo-company-tax-id";
 import {
   type ErrorMessageKey,
   toActionErrorKey,
@@ -39,6 +42,8 @@ export async function changeObligationStatus(
       errorKey: toActionErrorKey(error, "statusUpdateFailed"),
     };
   }
+
+  updateTag(obligationsListCacheTag(getDemoCompanyTaxId()));
 
   const locale = await getLocale();
   return redirect({ href: `/obligations/${id}`, locale });

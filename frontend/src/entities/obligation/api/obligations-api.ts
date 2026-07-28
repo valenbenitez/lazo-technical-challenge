@@ -1,3 +1,5 @@
+import { cacheLife, cacheTag } from "next/cache";
+import { obligationsListCacheTag } from "../lib/obligations-list-cache-tag";
 import { Status, Type } from "../model/obligation";
 
 export type CreateObligationInput = {
@@ -51,9 +53,12 @@ export type ObligationListItem = {
 const API_URL = process.env.API_URL;
 
 export async function listObligations(companyTaxId: string): Promise<ObligationListItem[]> {
+    "use cache";
+    cacheLife("minutes");
+    cacheTag(obligationsListCacheTag(companyTaxId));
+
     const res = await fetch(
         `${API_URL}/obligations?companyTaxId=${encodeURIComponent(companyTaxId)}`,
-        { cache: "no-store" },
     );
     if (!res.ok) {
         throw new Error("Failed to list obligations");

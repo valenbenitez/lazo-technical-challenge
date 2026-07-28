@@ -1,5 +1,6 @@
 "use server";
 
+import { updateTag } from "next/cache";
 import { getLocale } from "next-intl/server";
 import { redirect } from "@/i18n/navigation";
 import {
@@ -7,6 +8,7 @@ import {
     CreateObligationInput,
     ObligationListItem,
 } from "@/src/entities/obligation/api/obligations-api";
+import { obligationsListCacheTag } from "@/src/entities/obligation/lib/obligations-list-cache-tag";
 import { Type } from "@/src/entities/obligation/model/obligation";
 import {
     type ErrorMessageKey,
@@ -45,6 +47,10 @@ export async function createObligation(
             errorKey: toActionErrorKey(error, "createFailed"),
         };
     }
+
+    // Use the raw tax ID from the form — API responses return it masked.
+    updateTag(obligationsListCacheTag(input.companyTaxId));
+
     const locale = await getLocale();
     return redirect({ href: `/obligations/${response.id}`, locale });
 }

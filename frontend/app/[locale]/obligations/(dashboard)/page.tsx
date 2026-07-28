@@ -6,7 +6,6 @@ import ObligationsFilter from "@/src/features/filter-obligations/ui/ObligationsF
 import { getDemoCompanyTaxId } from "@/src/shared/config/demo-company-tax-id";
 import ButtonLink from "@/src/shared/ui/button-link";
 import ObligationsKpis from "@/src/widgets/obligations-kpis/ui/ObligationsKpis";
-import { cacheLife } from "next/cache";
 import { getTranslations } from "next-intl/server";
 import { Suspense } from "react";
 
@@ -20,9 +19,6 @@ const DUE_SOON_DAYS = 14;
 const inDueSoonDays = Date.now() + DUE_SOON_DAYS * 24 * 60 * 60 * 1000;
 
 async function getObligations() {
-  "use cache"
-  cacheLife("minutes")
-
   return listObligations(getDemoCompanyTaxId());
 }
 

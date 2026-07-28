@@ -1,5 +1,6 @@
 "use server";
 
+import { updateTag } from "next/cache";
 import { getLocale } from "next-intl/server";
 import { redirect } from "@/i18n/navigation";
 import {
@@ -7,7 +8,9 @@ import {
   updateObligationApi,
   UpdateObligationInput,
 } from "@/src/entities/obligation/api/obligations-api";
+import { obligationsListCacheTag } from "@/src/entities/obligation/lib/obligations-list-cache-tag";
 import { Type } from "@/src/entities/obligation/model/obligation";
+import { getDemoCompanyTaxId } from "@/src/shared/config/demo-company-tax-id";
 import {
   type ErrorMessageKey,
   toActionErrorKey,
@@ -47,6 +50,9 @@ export async function updateObligation(
       errorKey: toActionErrorKey(error, "updateFailed"),
     };
   }
+
+  // API returns masked companyTaxId; dashboard list is keyed by DEMO_COMPANY_TAX_ID.
+  updateTag(obligationsListCacheTag(getDemoCompanyTaxId()));
 
   const locale = await getLocale();
   return redirect({ href: `/obligations/${response.id}`, locale });

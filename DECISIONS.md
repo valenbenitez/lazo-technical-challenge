@@ -115,8 +115,37 @@ Evita que un update genérico bypasee la máquina de estados / doc-gated / audit
 - Formularios de create/edit viven en la ruta; la mutación en Server Actions bajo `features/`.
 - Cambio de estado solo en el detalle (no en el form de edit): el edit manda campos de `UpdateObligationInput`; el status usa el endpoint dedicado.
 - Botón `submitted` disabled en UI cuando falta documento: presentación a partir de `requiresDocument` + `documentUrl` + lo que el API **no** incluye en `validTransitions`. No hay tabla de transiciones en el front.
+- **i18n es/en** con `next-intl` (locale default `es`, switcher, rutas bajo `[locale]`).
 
-**Descartado en el MVP del front:** soft-delete UI, paginación, i18n (pendiente), auth.
+**Descartado en el MVP del front:** soft-delete UI, paginación, auth.
+
+---
+
+
+
+## Cache (frontend)
+
+Cache Components de Next (`cacheComponents` en `next.config`).
+
+- **Lista:** `listObligations` usa `"use cache"` + `cacheLife("minutes")` + tag `obligations-list-{companyTaxId}`.
+- **Detalle:** `getObligation` usa `cache: "no-store"` — prioriza frescura de `validTransitions`, `overdue` e `history`.
+- **Invalidación:** Server Actions de create / update / change-status llaman `updateTag` sobre el tag de lista (con `DEMO_COMPANY_TAX_ID` o el taxId crudo del create; la API devuelve taxId enmascarado, no sirve para el tag).
+
+**Por qué TTL corto en lista:** `overdue` es derivado del reloj. Un cache largo mostraría vencidas con retraso.
+
+**Por qué no cachear detalle como la lista:** el detalle es la superficie de transición; preferí datos frescos frente a un hit de cache.
+
+**Descartado:** Redis/CDN externos; cachear mutaciones.
+
+---
+
+
+
+## Deploy
+
+- **Frontend:** Vercel (Next App Router).
+- **Backend:** Render (Nest + Prisma + Postgres). Nest como proceso long-running encaja mejor que forzar serverless en Vercel.
+- **Cold start:** el free tier de Render duerme el servicio; el primer request puede demorar ~1 min. Queda avisado en el README.
 
 ---
 
@@ -124,10 +153,10 @@ Evita que un update genérico bypasee la máquina de estados / doc-gated / audit
 
 ## Pendiente
 
-- **Cache** — falta de estrategia de cache
 - **Paginado / búsqueda** — lista completa por empresa hoy
-- **Login / Companies** — reemplazaría el taxId hardcodeado
+- **Login / Companies** — reemplazaría `DEMO_COMPANY_TAX_ID` y el taxId libre en create
 - **Upload real de documentos** — hoy `documentUrl` mock
+- **CI (lint + test ambas capas)** — stretch; hoy se corre a mano
 
 ---
 
@@ -141,6 +170,7 @@ Evita que un update genérico bypasee la máquina de estados / doc-gated / audit
 - Revisar schema, máquina de estados y optimistic lock.
 - Acelerar UI de create/edit/detail y wiring de Server Actions.
 - Acelerar armado de arquitectura
+- Setup de `next-intl`, tests de dominio/e2e y wiring de Cache Components / tags
 
 **Corregí / rechacé:**
 
@@ -151,4 +181,6 @@ Evita que un update genérico bypasee la máquina de estados / doc-gated / audit
 - Preferir excepciones Nest en el service frente a un exception filter global.
 - `redirect()` de Next fuera del `try/catch` en actions (si no, se captura como error `NEXT_REDIRECT`).
 - No reimplementar la máquina de estados en el front; `validTransitions` y el bloqueo vienen del backend.
+- No cachear el detalle igual que la lista (`no-store` en get por frescura de transiciones/overdue).
+- No usar el `companyTaxId` enmascarado de la respuesta API como clave de `updateTag` (hay que invalidar con el valor crudo / demo env).
 
